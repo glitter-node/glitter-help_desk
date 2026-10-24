@@ -1,0 +1,22 @@
+{
+  "user": {
+    "list": {"title": "내 문의", "description": "등록한 고객 지원 문의를 확인합니다.", "create": "문의 등록", "empty": "등록한 티켓이 없습니다.", "search": "티켓 검색", "all_statuses": "모든 상태"},
+    "create": {"title": "새 문의", "description": "운영자에게 비공개 문의를 접수합니다.", "submit": "문의 접수", "no_category": "분류 선택 안 함"},
+    "detail": {"title": "문의 상세", "reply": "답변 작성", "reopen": "다시 열기", "back": "목록으로", "resolved_reply_notice": "답변을 작성하면 티켓이 다시 열립니다.", "closed_notice": "종료된 티켓에는 답변할 수 없습니다.", "history_limited": "최근 메시지 100개만 표시합니다.", "no_category": "분류 없음"}
+  },
+  "admin": {
+    "dashboard": {"title": "HelpDesk 대시보드", "description": "고객 지원 티켓 현황입니다.", "created_last_30_days": "최근 30일 접수", "unassigned": "미배정 티켓", "total_tickets": "상태별 전체 티켓", "status_title": "상태별 현황", "no_status_data": "표시할 티켓 현황이 없습니다.", "no_status_description": "티켓이 접수되면 상태별 집계가 여기에 표시됩니다."},
+    "tickets": {"title": "전체 티켓", "empty": "티켓이 없습니다.", "empty_description": "검색어나 필터를 바꾸거나 새 문의가 접수될 때까지 기다려 주세요.", "search": "티켓 검색", "unassigned": "미배정 티켓 보기", "all_priorities": "모든 우선순위", "filters": "검색 및 필터"},
+    "ticket": {"title": "티켓 처리", "reply": "고객 답변", "note": "내부 메모", "internal_note": "내부 메모", "status": "상태 변경", "priority": "우선순위 변경", "assign": "담당자 배정", "unassigned": "미배정", "back": "목록으로", "canned_reply": "답변 템플릿 삽입", "canned_reply_select": "템플릿 선택", "history_limited": "최근 이력 100개만 표시합니다.", "conversation": "문의 및 답변", "no_messages": "대화 내용이 없습니다.", "no_messages_description": "티켓의 문의와 답변이 이곳에 표시됩니다.", "history": "처리 이력", "requester": "요청자", "requester_name": "이름", "requester_id": "회원 번호", "requester_unavailable": "탈퇴했거나 삭제된 계정"},
+    "assigned": {"title": "내 담당 티켓", "empty": "담당 중인 티켓이 없습니다.", "empty_description": "배정된 티켓이 있으면 이 목록에 표시됩니다."},
+    "categories": {"title": "문의 분류", "empty": "분류가 없습니다.", "empty_description": "새 분류를 추가하면 여기에 표시됩니다.", "create_heading": "새 분류 추가", "list_heading": "기존 분류", "name": "분류명", "sort_order": "표시 순서", "create": "분류 추가", "parent": "상위 분류", "no_parent": "상위 분류 없음", "active": "사용", "save": "변경 저장"},
+    "canned_replies": {"title": "답변 템플릿", "empty": "답변 템플릿이 없습니다.", "empty_description": "자주 사용하는 답변을 템플릿으로 등록할 수 있습니다.", "create_heading": "새 답변 템플릿", "list_heading": "등록된 템플릿", "title_field": "템플릿 제목", "create": "템플릿 추가", "delete": "삭제", "delete_confirm": "이 답변 템플릿을 삭제할까요? 삭제 후 되돌릴 수 없습니다.", "save": "변경 저장"},
+    "settings": {"title": "HelpDesk 설정", "description": "고객이 해결된 티켓을 다시 여는 방식을 설정합니다.", "allow_customer_reopen": "고객이 해결된 티켓을 다시 열도록 허용", "allow_customer_reopen_description": "켜면 고객이 답변을 추가하지 않고도 해결된 티켓을 다시 열 수 있습니다.", "saved": "설정을 저장했습니다.", "save": "설정 저장"},
+    "reports": {"title": "HelpDesk 통계", "description": "최근 접수량과 미배정 현황, 상태별 티켓 분포를 확인합니다.", "created_last_30_days": "최근 30일 접수", "unassigned_open": "미배정 티켓", "by_status": "상태별 티켓 수", "empty": "집계할 티켓이 없습니다.", "empty_description": "티켓이 접수되면 상태별 통계가 표시됩니다."}
+  },
+  "common": {"loading": "불러오는 중입니다."},
+  "fields": {"number": "티켓 번호", "subject": "제목", "message": "문의 내용", "status": "상태", "priority": "우선순위", "category": "문의 분류", "created_at": "접수일", "updated_at": "최근 갱신일"},
+  "status": {"open": "접수", "in_progress": "처리 중", "waiting_customer": "고객 답변 대기", "resolved": "해결", "closed": "종료"},
+  "events": {"ticket_created": "티켓 등록", "ticket_status_changed": "상태 변경", "ticket_priority_changed": "우선순위 변경", "ticket_assigned": "담당자 변경"},
+  "priority": {"low": "낮음", "normal": "보통", "high": "높음", "urgent": "긴급"}
+}

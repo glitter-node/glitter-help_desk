@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "routes": [
+    {"path": "*/my/tickets", "layout": "user_ticket_index", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.user.list.title", "permission": "glitter-help_desk.tickets.read-own"}},
+    {"path": "*/my/tickets/create", "layout": "user_ticket_create", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.user.create.title", "permission": "glitter-help_desk.tickets.create"}},
+    {"path": "*/my/tickets/:ticket", "layout": "user_ticket_detail", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.user.detail.title", "permission": "glitter-help_desk.tickets.read-own"}}
+  ]
+}

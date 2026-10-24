@@ -1,0 +1,1 @@
+var GlitterHelpDesk=function(e){"use strict";const t={identifier:"glitter-help_desk"};return typeof window<"u"&&(window.GlitterHelpDesk=t),e.GlitterHelpDesk=t,Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),e}({});

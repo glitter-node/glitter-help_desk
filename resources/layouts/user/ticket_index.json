@@ -1,0 +1,427 @@
+{
+    "version": "1.0.0",
+    "layout_name": "user_ticket_index",
+    "extends": "_user_base",
+    "meta": {
+        "title": "$t:glitter-help_desk.user.list.title"
+    },
+    "data_sources": [
+        {
+            "id": "tickets",
+            "type": "api",
+            "endpoint": "/api/modules/glitter-help_desk/user/tickets",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true,
+            "refetchOnMount": true,
+            "params": {
+                "page": "{{query.page}}",
+                "per_page": "20",
+                "status": "{{query.status}}",
+                "q": "{{query.q}}"
+            }
+        }
+    ],
+    "slots": {
+        "content": [
+            {
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                    "className": "glitter-help-desk-shell space-y-6"
+                },
+                "children": [
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "flex flex-wrap items-start justify-between gap-4"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-1"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "H1",
+                                        "props": {
+                                            "className": "text-2xl font-bold text-slate-900 dark:text-white"
+                                        },
+                                        "text": "$t:glitter-help_desk.user.list.title"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "P",
+                                        "props": {
+                                            "className": "text-sm text-slate-600 dark:text-slate-400"
+                                        },
+                                        "text": "$t:glitter-help_desk.user.list.description"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "A",
+                                "props": {
+                                    "className": "button",
+                                    "href": "/my/tickets/create"
+                                },
+                                "text": "$t:glitter-help_desk.user.list.create"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2fr)_minmax(12rem,1fr)] md:items-end"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "htmlFor": "ticket_search",
+                                            "className": "form-label"
+                                        },
+                                        "text": "$t:glitter-help_desk.user.list.search"
+                                    },
+                                    {
+                                        "type": "composite",
+                                        "name": "SearchBar",
+                                        "actions": [
+                                            {
+                                                "type": "submit",
+                                                "handler": "navigate",
+                                                "params": {
+                                                    "path": "/my/tickets",
+                                                    "mergeQuery": true,
+                                                    "query": {
+                                                        "page": 1,
+                                                        "q": "{{$event.target.q.value}}",
+                                                        "status": "{{query.status}}"
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "props": {
+                                            "id": "ticket_search",
+                                            "name": "q",
+                                            "placeholder": "$t:glitter-help_desk.user.list.search",
+                                            "value": "{{query.q || ''}}",
+                                            "className": "w-full"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "htmlFor": "ticket_status",
+                                            "className": "form-label"
+                                        },
+                                        "text": "$t:glitter-help_desk.fields.status"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Select",
+                                        "actions": [
+                                            {
+                                                "type": "change",
+                                                "handler": "navigate",
+                                                "params": {
+                                                    "path": "/my/tickets",
+                                                    "mergeQuery": true,
+                                                    "query": {
+                                                        "page": 1,
+                                                        "status": "{{$event.target.value}}",
+                                                        "q": "{{query.q}}"
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "props": {
+                                            "id": "ticket_status",
+                                            "name": "status",
+                                            "className": "input w-full",
+                                            "aria-label": "$t:glitter-help_desk.fields.status",
+                                            "value": "{{query.status || ''}}"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": ""
+                                                },
+                                                "text": "$t:glitter-help_desk.user.list.all_statuses"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": "open"
+                                                },
+                                                "text": "$t:glitter-help_desk.status.open"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": "in_progress"
+                                                },
+                                                "text": "$t:glitter-help_desk.status.in_progress"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": "waiting_customer"
+                                                },
+                                                "text": "$t:glitter-help_desk.status.waiting_customer"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": "resolved"
+                                                },
+                                                "text": "$t:glitter-help_desk.status.resolved"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": "closed"
+                                                },
+                                                "text": "$t:glitter-help_desk.status.closed"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "if": "{{(tickets?.data?.data ?? []).length === 0}}",
+                        "props": {
+                            "className": "rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "P",
+                                "props": {
+                                    "className": "text-slate-500 dark:text-slate-400"
+                                },
+                                "text": "$t:glitter-help_desk.user.list.empty"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "if": "{{(tickets?.data?.data ?? []).length > 0}}",
+                        "iteration": {
+                            "source": "{{tickets?.data?.data ?? []}}",
+                            "item_var": "row"
+                        },
+                        "props": {
+                            "className": "rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "A",
+                                "actions": [
+                                    {
+                                        "type": "click",
+                                        "handler": "navigate",
+                                        "params": {
+                                            "mergeQuery": true,
+                                            "query": {}
+                                        }
+                                    }
+                                ],
+                                "props": {
+                                    "href": "/my/tickets/{{row.id}}",
+                                    "mergeQuery": true
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "H2",
+                                        "props": {
+                                            "className": "break-words text-lg font-semibold text-slate-900 dark:text-white"
+                                        },
+                                        "text": "{{row.subject}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "text-xs text-slate-500 dark:text-slate-400"
+                                                },
+                                                "text": "$t:glitter-help_desk.fields.number"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "break-words"
+                                                },
+                                                "text": "{{row.ticket_number}}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "text-xs text-slate-500 dark:text-slate-400"
+                                                },
+                                                "text": "$t:glitter-help_desk.fields.category"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "break-words"
+                                                },
+                                                "text": "{{row.category?.name || $t('glitter-help_desk.user.list.no_category')}}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "text-xs text-slate-500 dark:text-slate-400"
+                                                },
+                                                "text": "$t:glitter-help_desk.fields.updated_at"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "title": "{{row.updated_at ?? ''}}"
+                                                },
+                                                "text": "{{row.updated_at | datetime}}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "mt-3 flex flex-wrap items-end justify-between gap-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Div",
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "className": "text-xs text-slate-500 dark:text-slate-400"
+                                                },
+                                                "text": "$t:glitter-help_desk.fields.created_at"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "P",
+                                                "props": {
+                                                    "title": "{{row.created_at ?? ''}}"
+                                                },
+                                                "text": "{{row.created_at | datetime}}"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Badge",
+                                        "props": {
+                                            "variant": "{{row.status === 'resolved' ? 'success' : (row.status === 'waiting_customer' ? 'warning' : (row.status === 'closed' ? 'neutral' : (row.status === 'in_progress' ? 'primary' : 'secondary')))}}"
+                                        },
+                                        "text": "{{$t('glitter-help_desk.status.' + row.status)}}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "composite",
+                        "name": "Pagination",
+                        "if": "{{(tickets?.data?.last_page ?? 1) > 1}}",
+                        "actions": [
+                            {
+                                "event": "onPageChange",
+                                "handler": "navigate",
+                                "params": {
+                                    "path": "/my/tickets",
+                                    "mergeQuery": true,
+                                    "query": {
+                                        "page": "{{$args[0]}}",
+                                        "q": "{{query.q}}",
+                                        "status": "{{query.status}}"
+                                    }
+                                }
+                            }
+                        ],
+                        "props": {
+                            "currentPage": "{{tickets?.data?.current_page ?? 1}}",
+                            "totalPages": "{{tickets?.data?.last_page ?? 1}}",
+                            "className": "mt-4 flex justify-center"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

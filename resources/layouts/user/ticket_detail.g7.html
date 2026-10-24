@@ -1,0 +1,54 @@
+<layout name="user_ticket_detail" version="1.0.0" extends="_user_base">
+  <meta title="$t:glitter-help_desk.user.detail.title"/>
+  <data-source id="ticket" type="api" endpoint="/api/modules/glitter-help_desk/user/tickets/{{route.ticket}}" method="GET" :auto_fetch="true" :auth_required="true" :refetchOnMount="true"/>
+  <init><set-state target="local" replyRequestKey="{{$uuid()}}"/></init>
+  <slot name="content">
+    <div class="glitter-help-desk-shell space-y-6">
+      <a href="/my/tickets" :mergeQuery="true"><on type="click"><navigate path="/my/tickets" :mergeQuery="true"><query/></navigate></on>$t:glitter-help_desk.user.detail.back</a>
+      <div class="space-y-1">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white break-words">{{ticket?.data?.subject}}</h1>
+        <p class="text-sm text-slate-600 dark:text-slate-400">{{ticket?.data?.ticket_number}}</p>
+      </div>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.category</p>
+          <p>{{ticket?.data?.category?.name || $t('glitter-help_desk.user.detail.no_category')}}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.created_at</p>
+          <p title="{{ticket?.data?.created_at ?? ''}}">{{ticket?.data?.created_at | datetime}}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.updated_at</p>
+          <p title="{{ticket?.data?.updated_at ?? ''}}">{{ticket?.data?.updated_at | datetime}}</p>
+        </div>
+      </div>
+      <badge data-type="basic" variant="{{ticket?.data?.status === 'resolved' ? 'success' : (ticket?.data?.status === 'waiting_customer' ? 'warning' : (ticket?.data?.status === 'closed' ? 'neutral' : (ticket?.data?.status === 'in_progress' ? 'primary' : 'secondary')))}}">{{$t('glitter-help_desk.status.' + ticket?.data?.status)}}</badge>
+      <div data-each="message in {{ticket?.data?.messages}}"><p>{{message.author_nickname || message.author_name}}</p><p>{{message.body}}</p></div>
+      <p data-if="{{ticket?.data?.messages_truncated}}">$t:glitter-help_desk.user.detail.history_limited</p>
+      <p data-if="{{ticket?.data?.status === 'resolved'}}">$t:glitter-help_desk.user.detail.resolved_reply_notice</p>
+      <p data-if="{{ticket?.data?.status === 'closed'}}">$t:glitter-help_desk.user.detail.closed_notice</p>
+      <button type="button" data-if="{{ticket?.data?.status === 'resolved'}}">
+        <on type="click">
+          <api-call target="/api/modules/glitter-help_desk/user/tickets/{{route.ticket}}/reopen" method="POST" :auth_required="true">
+            <success><refetch-data-source dataSourceId="ticket" :sync="true"/></success>
+            <fail><toast type="error" message="{{error.message}}"/></fail>
+          </api-call>
+        </on>
+        $t:glitter-help_desk.user.detail.reopen
+      </button>
+      <form data-if="{{ticket?.data?.status !== 'closed'}}">
+        <on type="submit" debounce="1000">
+          <api-call target="/api/modules/glitter-help_desk/user/tickets/{{route.ticket}}/messages" method="POST" :auth_required="true">
+            <success><refetch-data-source dataSourceId="ticket" :sync="true"/><set-state target="local" replyRequestKey="{{$uuid()}}" replyBody=""/></success>
+            <fail><toast type="error" message="{{error.message}}"/></fail>
+            <body request_key="{{_local.replyRequestKey}}" body="{{_local.replyBody}}"/>
+          </api-call>
+        </on>
+        <label for="body">$t:glitter-help_desk.user.detail.reply</label>
+        <textarea id="body" name="body" value="{{_local.replyBody ?? ''}}" required="required" maxlength="20000"><on type="input"><set-state target="local" replyBody="{{$event.target.value}}"/></on></textarea>
+        <button type="submit" :lockRepeatClick="true">$t:glitter-help_desk.user.detail.reply</button>
+      </form>
+    </div>
+  </slot>
+</layout>

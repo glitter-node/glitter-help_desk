@@ -1,0 +1,97 @@
+<layout name="admin_ticket_detail" version="1.0.0" extends="_admin_base">
+  <meta title="$t:glitter-help_desk.admin.ticket.title"/>
+  <data-source id="ticket" type="api" endpoint="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}" method="GET" :auto_fetch="true" :auth_required="true" :refetchOnMount="true"/>
+  <data-source id="agents" type="api" endpoint="/api/modules/glitter-help_desk/admin/agents" method="GET" :auto_fetch="true" :auth_required="true"/>
+  <data-source id="cannedReplies" type="api" endpoint="/api/modules/glitter-help_desk/admin/canned-replies?active_only=1" method="GET" :auto_fetch="true" :auth_required="true"/>
+  <init><set-state target="local" replyRequestKey="{{$uuid()}}" noteRequestKey="{{$uuid()}}"/></init>
+  <slot name="content">
+    <div class="admin-page-content-responsive-fluid">
+      <a class="btn btn-secondary w-fit mb-4" href="/admin/helpdesk/tickets" :mergeQuery="true"><on type="click"><navigate path="/admin/helpdesk/tickets" :mergeQuery="true"><query/></navigate></on>$t:glitter-help_desk.admin.ticket.back</a>
+      <div data-if="{{ticket === undefined}}" class="admin-card text-body">$t:glitter-help_desk.common.loading</div>
+      <page-header data-type="composite" title="{{ticket?.data?.subject}}" description="{{ticket?.data?.ticket_number}}"/>
+      <section data-if="{{ticket?.data?.status !== undefined}}" class="admin-card"><h2 class="section-heading mb-4">$t:glitter-help_desk.admin.ticket.requester</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="min-w-0"><p class="text-label-subtle">$t:glitter-help_desk.admin.ticket.requester_name</p><p data-if="{{ticket?.data?.requester}}" class="text-body break-words">{{ticket?.data?.requester?.nickname || ticket?.data?.requester?.name}}</p><p data-if="{{!ticket?.data?.requester}}" class="text-body break-words">$t:glitter-help_desk.admin.ticket.requester_unavailable</p></div><div class="min-w-0"><p class="text-label-subtle">$t:glitter-help_desk.admin.ticket.requester_id</p><p class="text-body break-words">{{ticket?.data?.requester?.id ?? ticket?.data?.user_id}}</p></div></div></section>
+      <section data-if="{{ticket !== undefined}}" class="admin-card"><div class="flex-between flex-wrap gap-3 mb-4"><h2 class="section-heading">$t:glitter-help_desk.admin.ticket.conversation</h2><status-badge data-type="composite" status="{{ticket?.data?.status === 'resolved' ? 'success' : (ticket?.data?.status === 'closed' ? 'default' : (ticket?.data?.status === 'waiting_customer' ? 'warning' : (ticket?.data?.status === 'in_progress' ? 'info' : 'pending')))}}" label="{{$t('glitter-help_desk.status.' + ticket?.data?.status)}}"/></div><empty-state data-type="composite" data-if="{{(ticket?.data?.messages ?? []).length === 0}}" iconName="comment" title="$t:glitter-help_desk.admin.ticket.no_messages" description="$t:glitter-help_desk.admin.ticket.no_messages_description" class="py-4"/><div class="space-y-4"><div data-each="message in {{ticket?.data?.messages ?? []}}" class="min-w-0 rounded-lg border p-4"><p class="text-heading break-words">{{message.author_nickname || message.author_name}}</p><span data-if="{{!message.is_public}}" class="badge badge-warning">$t:glitter-help_desk.admin.ticket.internal_note</span><p class="text-body mt-2 whitespace-pre-wrap break-words">{{message.body}}</p></div></div></section>
+      <p data-if="{{ticket?.data?.messages_truncated || ticket?.data?.events_truncated}}" class="text-body mb-6 break-words">$t:glitter-help_desk.admin.ticket.history_limited</p>
+      <section data-if="{{(ticket?.data?.events ?? []).length > 0 || (ticket?.data?.assignments ?? []).length > 0}}" class="admin-card"><h2 class="section-heading mb-4">$t:glitter-help_desk.admin.ticket.history</h2><div class="space-y-2"><div data-each="event in {{ticket?.data?.events ?? []}}" class="text-body break-words">{{$t('glitter-help_desk.events.' + event.event_type.replace('.', '_'))}} · {{event.actor_nickname || event.actor_name}}</div><div data-each="assignment in {{ticket?.data?.assignments ?? []}}" class="text-body break-words">{{assignment.from_nickname || assignment.from_name || '-' }} → {{assignment.to_nickname || assignment.to_name || '-' }} · {{assignment.changed_by_nickname || assignment.changed_by_name}}</div></div></section>
+      <section data-if="{{ticket?.data?.status !== undefined}}" class="admin-card"><div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-end">
+        <div class="min-w-0"><permissions><permission>glitter-help_desk.tickets.update-status</permission></permissions>
+        <label for="ticket_status" class="form-label">$t:glitter-help_desk.admin.ticket.status</label>
+        <select id="ticket_status" class="select w-full h-10" name="ticket_status" value="{{ticket?.data?.status}}">
+        <option value="open">$t:glitter-help_desk.status.open</option>
+        <option value="in_progress">$t:glitter-help_desk.status.in_progress</option>
+        <option value="waiting_customer">$t:glitter-help_desk.status.waiting_customer</option>
+        <option value="resolved">$t:glitter-help_desk.status.resolved</option>
+        <option value="closed">$t:glitter-help_desk.status.closed</option>
+        <on type="change">
+          <api-call target="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}/status" method="PATCH" :auth_required="true">
+            <success><refetch-data-source dataSourceId="ticket" :sync="true"/></success>
+            <fail><toast type="error" message="{{error.message}}"/></fail>
+            <body status="{{$event.target.value}}"/>
+          </api-call>
+        </on>
+        </select></div>
+        <div class="min-w-0"><permissions><permission>glitter-help_desk.tickets.assign</permission></permissions>
+        <label for="ticket_assignee" class="form-label">$t:glitter-help_desk.admin.ticket.assign</label>
+        <select id="ticket_assignee" class="select w-full h-10" name="ticket_assignee" value="{{ticket?.data?.assignee_id ?? ''}}">
+          <option value="">$t:glitter-help_desk.admin.ticket.unassigned</option>
+          <option data-each="agent in {{agents?.data ?? []}}" value="{{agent.id}}">{{agent.nickname || agent.name}}</option>
+          <on type="change">
+            <api-call target="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}/assignee" method="PUT" :auth_required="true">
+              <success><refetch-data-source dataSourceId="ticket" :sync="true"/></success>
+              <fail><toast type="error" message="{{error.message}}"/></fail>
+              <body assignee_id="{{$event.target.value}}"/>
+            </api-call>
+          </on>
+        </select></div>
+        <div class="min-w-0"><permissions><permission>glitter-help_desk.tickets.update-priority</permission></permissions>
+        <label for="ticket_priority" class="form-label">$t:glitter-help_desk.admin.ticket.priority</label>
+        <select id="ticket_priority" class="select w-full h-10" name="ticket_priority" value="{{ticket?.data?.priority}}">
+        <option value="low">$t:glitter-help_desk.priority.low</option>
+        <option value="normal">$t:glitter-help_desk.priority.normal</option>
+        <option value="high">$t:glitter-help_desk.priority.high</option>
+        <option value="urgent">$t:glitter-help_desk.priority.urgent</option>
+        <on type="change">
+          <api-call target="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}/priority" method="PATCH" :auth_required="true">
+            <success><refetch-data-source dataSourceId="ticket" :sync="true"/></success>
+            <fail><toast type="error" message="{{error.message}}"/></fail>
+            <body priority="{{$event.target.value}}"/>
+          </api-call>
+        </on>
+        </select></div>
+      </div></section>
+      <div data-if="{{ticket?.data?.status === 'closed'}}" class="admin-card text-body break-words">$t:glitter-help_desk.user.detail.closed_notice</div>
+      <section data-if="{{ticket?.data?.status !== undefined && ticket?.data?.status !== 'closed'}}" class="admin-card">
+        <permissions><permission>glitter-help_desk.tickets.respond</permission></permissions>
+        <form class="space-y-4">
+          <on type="submit" debounce="1000">
+            <api-call target="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}/messages" method="POST" :auth_required="true">
+              <success><refetch-data-source dataSourceId="ticket" :sync="true"/><set-state target="local" replyRequestKey="{{$uuid()}}" replyBody=""/></success>
+              <fail><toast type="error" message="{{error.message}}"/></fail>
+              <body request_key="{{_local.replyRequestKey}}" body="{{$event.target.elements.body.value}}"/>
+            </api-call>
+          </on>
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+            <div class="min-w-0"><label for="canned_reply" class="form-label">$t:glitter-help_desk.admin.ticket.canned_reply</label><select id="canned_reply" class="select w-full h-10" name="canned_reply"><option value="">$t:glitter-help_desk.admin.ticket.canned_reply_select</option><option data-each="reply in {{cannedReplies?.data?.data ?? []}}" value="{{reply.id}}">{{reply.title}}</option><on type="change"><conditions><when if="{{!!$event.target.value}}"><set-state target="local" replyBody="{{(_local.replyBody || '') ? _local.replyBody + '\n\n' + (cannedReplies?.data?.data ?? []).find(item => String(item.id) === String($event.target.value))?.body : (cannedReplies?.data?.data ?? []).find(item => String(item.id) === String($event.target.value))?.body}}"/></when></conditions></on></select></div>
+            <div class="min-w-0 xl:col-span-2"><label for="body" class="form-label">$t:glitter-help_desk.admin.ticket.reply</label><textarea id="body" name="body" class="textarea w-full break-words" rows="5" value="{{_local.replyBody ?? ''}}" required="required" maxlength="20000"><on type="input"><set-state target="local" replyBody="{{$event.target.value}}"/></on></textarea></div>
+          </div>
+          <div class="flex justify-end"><button class="btn btn-primary" type="submit" :lockRepeatClick="true">$t:glitter-help_desk.admin.ticket.reply</button></div>
+        </form>
+      </section>
+      <section data-if="{{ticket?.data?.status !== undefined && ticket?.data?.status !== 'closed'}}" class="admin-card">
+        <permissions><permission>glitter-help_desk.notes.manage</permission></permissions>
+        <form class="space-y-4">
+          <on type="submit" debounce="1000">
+            <api-call target="/api/modules/glitter-help_desk/admin/tickets/{{route.ticket}}/notes" method="POST" :auth_required="true">
+              <success><refetch-data-source dataSourceId="ticket" :sync="true"/><set-state target="local" noteRequestKey="{{$uuid()}}" noteBody=""/></success>
+              <fail><toast type="error" message="{{error.message}}"/></fail>
+              <body request_key="{{_local.noteRequestKey}}" body="{{_local.noteBody}}"/>
+            </api-call>
+          </on>
+          <label for="note" class="form-label">$t:glitter-help_desk.admin.ticket.note</label>
+          <textarea id="note" name="note" class="textarea w-full break-words" rows="4" value="{{_local.noteBody ?? ''}}" required="required" maxlength="20000"><on type="input"><set-state target="local" noteBody="{{$event.target.value}}"/></on></textarea>
+          <div class="flex justify-end"><button class="btn btn-secondary" type="submit" :lockRepeatClick="true">$t:glitter-help_desk.admin.ticket.note</button></div>
+        </form>
+      </section>
+    </div>
+  </slot>
+</layout>

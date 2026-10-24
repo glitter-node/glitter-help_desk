@@ -1,0 +1,23 @@
+<layout name="admin_dashboard" version="1.0.0" extends="_admin_base">
+  <meta title="$t:glitter-help_desk.admin.dashboard.title"/>
+  <data-source id="report" type="api" endpoint="/api/modules/glitter-help_desk/admin/reports" method="GET" :auto_fetch="true" :auth_required="true"/>
+  <slot name="content">
+    <div class="admin-page-content-responsive-fluid">
+      <page-header data-type="composite" title="$t:glitter-help_desk.admin.dashboard.title" description="$t:glitter-help_desk.admin.dashboard.description"/>
+      <div data-if="{{report === undefined}}" class="admin-card text-body">$t:glitter-help_desk.common.loading</div>
+      <div data-if="{{report !== undefined}}" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+        <stat-card data-type="composite" value="{{report?.data?.created_last_30_days ?? 0}}" label="$t:glitter-help_desk.admin.dashboard.created_last_30_days" iconName="calendar" class="h-full"/>
+        <stat-card data-type="composite" value="{{report?.data?.unassigned_open ?? 0}}" label="$t:glitter-help_desk.admin.dashboard.unassigned" iconName="clock" class="h-full"/>
+        <stat-card data-type="composite" value="{{Object.values(report?.data?.by_status ?? {}).reduce((sum, count) => sum + Number(count || 0), 0)}}" label="$t:glitter-help_desk.admin.dashboard.total_tickets" iconName="file-alt" class="h-full"/>
+      </div>
+      <section class="admin-card">
+        <h2 class="section-heading mb-4">$t:glitter-help_desk.admin.dashboard.status_title</h2>
+        <div data-if="{{report === undefined}}" class="text-body">$t:glitter-help_desk.common.loading</div>
+        <empty-state data-type="composite" data-if="{{report !== undefined &amp;&amp; Object.keys(report?.data?.by_status ?? {}).length === 0}}" iconName="file-alt" title="$t:glitter-help_desk.admin.dashboard.no_status_data" description="$t:glitter-help_desk.admin.dashboard.no_status_description" class="py-4"/>
+        <div data-if="{{report !== undefined &amp;&amp; Object.keys(report?.data?.by_status ?? {}).length > 0}}" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          <div data-each="entry in {{Object.entries(report?.data?.by_status ?? {})}}" class="min-w-0 rounded-lg border p-4"><div class="text-label-subtle break-words">{{$t('glitter-help_desk.status.' + entry[0])}}</div><div class="text-2xl font-semibold">{{entry[1]}}</div></div>
+        </div>
+      </section>
+    </div>
+  </slot>
+</layout>

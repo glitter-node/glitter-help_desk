@@ -1,0 +1,22 @@
+{
+  "name": "modules/glitter-help_desk",
+  "description": "Customer support and ticket management module for Gnuboard7",
+  "type": "library",
+  "version": "0.1.0",
+  "license": "MIT",
+  "homepage": "https://glitter.kr",
+  "authors": [
+    {
+      "name": "Glitter.kr"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Modules\\Glitter\\HelpDesk\\": "src/",
+      "Modules\\Glitter\\HelpDesk\\Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "require": {
+    "php": "^8.2"
+  }
+}

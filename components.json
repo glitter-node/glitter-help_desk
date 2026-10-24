@@ -1,0 +1,10 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "identifier": "glitter-help_desk",
+    "version": "0.1.3",
+    "components": {
+        "basic": [],
+        "composite": [],
+        "layout": []
+    }
+}

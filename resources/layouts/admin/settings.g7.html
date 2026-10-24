@@ -1,0 +1,11 @@
+<layout name="admin_settings" version="1.0.0" extends="_admin_base">
+  <meta title="$t:glitter-help_desk.admin.settings.title"/>
+  <data-source id="settings" type="api" endpoint="/api/modules/glitter-help_desk/admin/settings" method="GET" :auto_fetch="true" :auth_required="true"/>
+  <slot name="content"><div class="admin-page-content-responsive-fluid"><page-header data-type="composite" title="$t:glitter-help_desk.admin.settings.title" description="$t:glitter-help_desk.admin.settings.description"/>
+    <div data-if="{{settings === undefined}}" class="admin-card text-body">$t:glitter-help_desk.common.loading</div>
+    <section data-if="{{settings !== undefined}}" class="admin-card"><form class="space-y-4"><on type="submit" preventDefault="true"><api-call target="/api/modules/glitter-help_desk/admin/settings" method="PUT" :auth_required="true"><success><refetch-data-source dataSourceId="settings" :sync="true"/><toast type="success" message="$t:glitter-help_desk.admin.settings.saved"/></success><fail><toast type="error" message="{{error.message}}"/></fail><body allow_customer_reopen="{{$event.target.elements.allow_customer_reopen.checked}}"/></api-call></on>
+      <div class="flex items-start gap-3 max-w-3xl"><input id="allow_customer_reopen" class="mt-1 shrink-0" name="allow_customer_reopen" type="checkbox" checked="{{(settings?.data ?? []).find(setting => setting.setting_key === 'allow_customer_reopen')?.setting_value !== 'false'}}"/><div class="min-w-0"><label for="allow_customer_reopen" class="text-heading block">$t:glitter-help_desk.admin.settings.allow_customer_reopen</label><p class="text-label-subtle mt-1">$t:glitter-help_desk.admin.settings.allow_customer_reopen_description</p></div></div>
+      <button class="btn btn-primary w-full sm:w-auto" type="submit">$t:glitter-help_desk.admin.settings.save</button>
+    </form></section>
+  </div></slot>
+</layout>

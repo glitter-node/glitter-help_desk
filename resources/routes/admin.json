@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "routes": [
+    {"path": "*/admin/helpdesk", "layout": "admin_dashboard", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.dashboard.title", "permission": "glitter-help_desk.reports.read"}},
+    {"path": "*/admin/helpdesk/reports", "layout": "admin_reports", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.reports.title", "permission": "glitter-help_desk.reports.read"}},
+    {"path": "*/admin/helpdesk/tickets", "layout": "admin_ticket_index", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.tickets.title", "permission": "glitter-help_desk.tickets.read-all"}},
+    {"path": "*/admin/helpdesk/tickets/:ticket", "layout": "admin_ticket_detail", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.ticket.title"}},
+    {"path": "*/admin/helpdesk/assigned", "layout": "admin_assigned_tickets", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.assigned.title", "permission": "glitter-help_desk.tickets.read-assigned"}},
+    {"path": "*/admin/helpdesk/my-tickets", "layout": "admin_assigned_tickets", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.assigned.title", "permission": "glitter-help_desk.tickets.read-assigned"}},
+    {"path": "*/admin/helpdesk/categories", "layout": "admin_categories", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.categories.title", "permission": "glitter-help_desk.categories.manage"}},
+    {"path": "*/admin/helpdesk/canned-replies", "layout": "admin_canned_replies", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.canned_replies.title", "permission": "glitter-help_desk.notes.manage"}},
+    {"path": "*/admin/helpdesk/settings", "layout": "admin_settings", "auth_required": true, "meta": {"title": "$t:glitter-help_desk.admin.settings.title", "permission": "glitter-help_desk.settings.manage"}}
+  ]
+}

@@ -1,0 +1,24 @@
+<layout name="admin_ticket_index" version="1.0.0" extends="_admin_base">
+  <meta title="$t:glitter-help_desk.admin.tickets.title"/>
+  <data-source id="tickets" type="api" endpoint="/api/modules/glitter-help_desk/admin/tickets" method="GET" :auto_fetch="true" :auth_required="true" :refetchOnMount="true"><params page="{{query.page}}" per_page="25" status="{{query.status}}" priority="{{query.priority}}" q="{{query.q}}" unassigned="{{query.unassigned}}"/></data-source>
+  <slot name="content"><div class="admin-page-content-responsive-fluid">
+    <page-header data-type="composite" title="$t:glitter-help_desk.admin.tickets.title"/>
+    <section class="admin-card space-y-4">
+      <h2 class="section-heading">$t:glitter-help_desk.admin.tickets.filters</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 items-end">
+        <search-bar data-type="composite" name="q" placeholder="$t:glitter-help_desk.admin.tickets.search" value="{{query.q || ''}}" class="w-full h-10 xl:col-span-2"><on type="submit"><navigate path="/admin/helpdesk/tickets" :mergeQuery="true"><query :page="1" q="{{$event.target.q.value}}" status="{{query.status}}" priority="{{query.priority}}" unassigned="{{query.unassigned}}"/></navigate></on></search-bar>
+        <div><label for="ticket_status_filter" class="form-label">$t:glitter-help_desk.fields.status</label><select id="ticket_status_filter" class="select w-full h-10" value="{{query.status || ''}}"><on type="change"><navigate path="/admin/helpdesk/tickets" :mergeQuery="true"><query :page="1" status="{{$event.target.value}}" q="{{query.q}}" priority="{{query.priority}}" unassigned="{{query.unassigned}}"/></navigate></on><option value="">$t:glitter-help_desk.user.list.all_statuses</option><option value="open">$t:glitter-help_desk.status.open</option><option value="in_progress">$t:glitter-help_desk.status.in_progress</option><option value="waiting_customer">$t:glitter-help_desk.status.waiting_customer</option><option value="resolved">$t:glitter-help_desk.status.resolved</option><option value="closed">$t:glitter-help_desk.status.closed</option></select></div>
+        <div><label for="ticket_priority_filter" class="form-label">$t:glitter-help_desk.fields.priority</label><select id="ticket_priority_filter" class="select w-full h-10" value="{{query.priority || ''}}"><on type="change"><navigate path="/admin/helpdesk/tickets" :mergeQuery="true"><query :page="1" priority="{{$event.target.value}}" status="{{query.status}}" q="{{query.q}}" unassigned="{{query.unassigned}}"/></navigate></on><option value="">$t:glitter-help_desk.admin.tickets.all_priorities</option><option value="low">$t:glitter-help_desk.priority.low</option><option value="normal">$t:glitter-help_desk.priority.normal</option><option value="high">$t:glitter-help_desk.priority.high</option><option value="urgent">$t:glitter-help_desk.priority.urgent</option></select></div>
+        <a class="btn btn-secondary h-10 w-full" href="/admin/helpdesk/tickets?unassigned=1"><on type="click"><navigate path="/admin/helpdesk/tickets"><query unassigned="1"/></navigate></on>$t:glitter-help_desk.admin.tickets.unassigned</a>
+      </div>
+    </section>
+    <div data-if="{{tickets === undefined}}" class="admin-card text-body">$t:glitter-help_desk.common.loading</div>
+    <section data-if="{{tickets !== undefined}}" class="admin-card">
+      <div data-if="{{(tickets?.data?.data ?? []).length > 0}}" class="overflow-x-auto"><data-grid data-type="composite" data="{{tickets?.data?.data ?? []}}" :pagination="true" :serverSidePagination="true" :responsiveBreakpoint="768" serverCurrentPage="{{tickets?.data?.current_page ?? 1}}" serverTotalPages="{{tickets?.data?.last_page ?? 1}}" pageHref="/admin/helpdesk/tickets?page={page}" :pageHrefMergeQuery="true" emptyMessage="$t:glitter-help_desk.admin.tickets.empty">
+        <column field="ticket_number" header="$t:glitter-help_desk.fields.number" width="150px"/><column field="subject" header="$t:glitter-help_desk.fields.subject"><cell><a class="text-heading break-words" href="/admin/helpdesk/tickets/{{row.id}}" :mergeQuery="true"><on type="click"><navigate :mergeQuery="true"><query/></navigate></on>{{row.subject}}</a></cell></column>
+        <column field="status" header="$t:glitter-help_desk.fields.status" width="170px"><cell>{{$t('glitter-help_desk.status.' + row.status)}}</cell></column><column field="priority" header="$t:glitter-help_desk.fields.priority" width="140px"><cell>{{$t('glitter-help_desk.priority.' + row.priority)}}</cell></column>
+      </data-grid></div>
+      <empty-state data-type="composite" data-if="{{(tickets?.data?.data ?? []).length === 0}}" iconName="file-alt" title="$t:glitter-help_desk.admin.tickets.empty" description="$t:glitter-help_desk.admin.tickets.empty_description" class="py-4"/>
+    </section>
+  </div></slot>
+</layout>

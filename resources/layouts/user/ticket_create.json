@@ -1,0 +1,232 @@
+{
+    "version": "1.0.0",
+    "layout_name": "user_ticket_create",
+    "extends": "_user_base",
+    "meta": {
+        "title": "$t:glitter-help_desk.user.create.title"
+    },
+    "data_sources": [
+        {
+            "id": "categories",
+            "type": "api",
+            "endpoint": "/api/modules/glitter-help_desk/user/categories",
+            "method": "GET",
+            "auto_fetch": true,
+            "auth_required": true
+        }
+    ],
+    "init_actions": [
+        {
+            "handler": "setState",
+            "params": {
+                "target": "local",
+                "createRequestKey": "{{$uuid()}}"
+            }
+        }
+    ],
+    "slots": {
+        "content": [
+            {
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                    "className": "glitter-help-desk-shell space-y-6"
+                },
+                "children": [
+                    {
+                        "type": "basic",
+                        "name": "Div",
+                        "props": {
+                            "className": "space-y-1"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "H1",
+                                "props": {
+                                    "className": "text-2xl font-bold text-slate-900 dark:text-white"
+                                },
+                                "text": "$t:glitter-help_desk.user.create.title"
+                            },
+                            {
+                                "type": "basic",
+                                "name": "P",
+                                "props": {
+                                    "className": "text-sm text-slate-600 dark:text-slate-400"
+                                },
+                                "text": "$t:glitter-help_desk.user.create.description"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ticket_create_form",
+                        "type": "basic",
+                        "name": "Form",
+                        "actions": [
+                            {
+                                "type": "submit",
+                                "handler": "apiCall",
+                                "target": "/api/modules/glitter-help_desk/user/tickets",
+                                "auth_required": true,
+                                "params": {
+                                    "method": "POST",
+                                    "body": {
+                                        "request_key": "{{_local.createRequestKey}}",
+                                        "subject": "{{$event.target.elements.subject.value}}",
+                                        "body": "{{$event.target.elements.body.value}}",
+                                        "category_id": "{{$event.target.elements.category_id.value}}"
+                                    }
+                                },
+                                "onSuccess": {
+                                    "handler": "navigate",
+                                    "params": {
+                                        "path": "/my/tickets/{{response?.data?.data?.id}}"
+                                    }
+                                },
+                                "onError": {
+                                    "handler": "toast",
+                                    "params": {
+                                        "type": "error",
+                                        "message": "{{error.message}}"
+                                    }
+                                }
+                            }
+                        ],
+                        "props": {
+                            "className": "space-y-5"
+                        },
+                        "children": [
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "htmlFor": "subject",
+                                            "className": "form-label"
+                                        },
+                                        "text": "$t:glitter-help_desk.fields.subject"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Input",
+                                        "props": {
+                                            "id": "subject",
+                                            "className": "input w-full",
+                                            "name": "subject",
+                                            "required": "required",
+                                            "maxlength": "200"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "htmlFor": "category_id",
+                                            "className": "form-label"
+                                        },
+                                        "text": "$t:glitter-help_desk.fields.category"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Select",
+                                        "props": {
+                                            "id": "category_id",
+                                            "className": "input w-full",
+                                            "name": "category_id"
+                                        },
+                                        "children": [
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "props": {
+                                                    "value": ""
+                                                },
+                                                "text": "$t:glitter-help_desk.user.create.no_category"
+                                            },
+                                            {
+                                                "type": "basic",
+                                                "name": "Option",
+                                                "iteration": {
+                                                    "source": "{{categories?.data ?? []}}",
+                                                    "item_var": "category"
+                                                },
+                                                "props": {
+                                                    "value": "{{category.id}}"
+                                                },
+                                                "text": "{{category.name}}"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "space-y-2"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Label",
+                                        "props": {
+                                            "htmlFor": "body",
+                                            "className": "form-label"
+                                        },
+                                        "text": "$t:glitter-help_desk.fields.message"
+                                    },
+                                    {
+                                        "type": "basic",
+                                        "name": "Textarea",
+                                        "props": {
+                                            "id": "body",
+                                            "className": "textarea min-h-48 w-full",
+                                            "name": "body",
+                                            "required": "required",
+                                            "maxlength": "20000"
+                                        },
+                                        "text": ""
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "basic",
+                                "name": "Div",
+                                "props": {
+                                    "className": "flex justify-end"
+                                },
+                                "children": [
+                                    {
+                                        "type": "basic",
+                                        "name": "Button",
+                                        "props": {
+                                            "className": "btn btn-primary w-full sm:w-auto",
+                                            "type": "submit",
+                                            "lockRepeatClick": true
+                                        },
+                                        "text": "$t:glitter-help_desk.user.create.submit"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

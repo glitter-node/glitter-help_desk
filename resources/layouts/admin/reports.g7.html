@@ -1,0 +1,12 @@
+<layout name="admin_reports" version="1.0.0" extends="_admin_base">
+  <meta title="$t:glitter-help_desk.admin.reports.title"/>
+  <data-source id="report" type="api" endpoint="/api/modules/glitter-help_desk/admin/reports" method="GET" :auto_fetch="true" :auth_required="true"/>
+  <slot name="content"><div class="admin-page-content-responsive-fluid"><page-header data-type="composite" title="$t:glitter-help_desk.admin.reports.title" description="$t:glitter-help_desk.admin.reports.description"/>
+    <div data-if="{{report === undefined}}" class="admin-card text-body">$t:glitter-help_desk.common.loading</div>
+    <div data-if="{{report !== undefined}}" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"><stat-card data-type="composite" value="{{report?.data?.created_last_30_days ?? 0}}" label="$t:glitter-help_desk.admin.reports.created_last_30_days" iconName="calendar" class="h-full"/><stat-card data-type="composite" value="{{report?.data?.unassigned_open ?? 0}}" label="$t:glitter-help_desk.admin.reports.unassigned_open" iconName="clock" class="h-full"/></div>
+    <section data-if="{{report !== undefined}}" class="admin-card"><h2 class="section-heading mb-4">$t:glitter-help_desk.admin.reports.by_status</h2>
+      <empty-state data-type="composite" data-if="{{Object.keys(report?.data?.by_status ?? {}).length === 0}}" iconName="chart-bar" title="$t:glitter-help_desk.admin.reports.empty" description="$t:glitter-help_desk.admin.reports.empty_description" class="py-4"/>
+      <div data-if="{{Object.keys(report?.data?.by_status ?? {}).length > 0}}" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4"><div data-each="entry in {{Object.entries(report?.data?.by_status ?? {})}}" class="min-w-0 rounded-lg border p-4"><div class="text-label-subtle break-words">{{$t('glitter-help_desk.status.' + entry[0])}}</div><div class="text-2xl font-semibold">{{entry[1]}}</div></div></div>
+    </section>
+  </div></slot>
+</layout>

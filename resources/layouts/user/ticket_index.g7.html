@@ -1,0 +1,71 @@
+<layout name="user_ticket_index" version="1.0.0" extends="_user_base">
+  <meta title="$t:glitter-help_desk.user.list.title"/>
+  <data-source id="tickets" type="api" endpoint="/api/modules/glitter-help_desk/user/tickets" method="GET" :auto_fetch="true" :auth_required="true" :refetchOnMount="true">
+    <params page="{{query.page}}" per_page="20" status="{{query.status}}" q="{{query.q}}"/>
+  </data-source>
+  <slot name="content">
+    <div class="glitter-help-desk-shell space-y-6">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="space-y-1">
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">$t:glitter-help_desk.user.list.title</h1>
+          <p class="text-sm text-slate-600 dark:text-slate-400">$t:glitter-help_desk.user.list.description</p>
+        </div>
+        <a class="button" href="/my/tickets/create">$t:glitter-help_desk.user.list.create</a>
+      </div>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2fr)_minmax(12rem,1fr)] md:items-end">
+        <div class="space-y-2">
+          <label for="ticket_search" class="form-label">$t:glitter-help_desk.user.list.search</label>
+          <search-bar id="ticket_search" data-type="composite" name="q" placeholder="$t:glitter-help_desk.user.list.search" value="{{query.q || ''}}" class="w-full">
+            <on type="submit"><navigate path="/my/tickets" :mergeQuery="true"><query :page="1" q="{{$event.target.q.value}}" status="{{query.status}}"/></navigate></on>
+          </search-bar>
+        </div>
+        <div class="space-y-2">
+          <label for="ticket_status" class="form-label">$t:glitter-help_desk.fields.status</label>
+          <select id="ticket_status" name="status" class="input w-full" aria-label="$t:glitter-help_desk.fields.status" value="{{query.status || ''}}">
+            <on type="change"><navigate path="/my/tickets" :mergeQuery="true"><query :page="1" status="{{$event.target.value}}" q="{{query.q}}"/></navigate></on>
+            <option value="">$t:glitter-help_desk.user.list.all_statuses</option>
+            <option value="open">$t:glitter-help_desk.status.open</option>
+            <option value="in_progress">$t:glitter-help_desk.status.in_progress</option>
+            <option value="waiting_customer">$t:glitter-help_desk.status.waiting_customer</option>
+            <option value="resolved">$t:glitter-help_desk.status.resolved</option>
+            <option value="closed">$t:glitter-help_desk.status.closed</option>
+          </select>
+        </div>
+      </div>
+      <div data-if="{{(tickets?.data?.data ?? []).length === 0}}" class="rounded-lg border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
+        <p class="text-slate-500 dark:text-slate-400">$t:glitter-help_desk.user.list.empty</p>
+      </div>
+      <div data-if="{{(tickets?.data?.data ?? []).length > 0}}" data-each="row in {{tickets?.data?.data ?? []}}" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <a href="/my/tickets/{{row.id}}" :mergeQuery="true"><on type="click"><navigate :mergeQuery="true"><query/></navigate></on><h2 class="break-words text-lg font-semibold text-slate-900 dark:text-white">{{row.subject}}</h2></a>
+          <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.number</p>
+              <p class="break-words">{{row.ticket_number}}</p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.category</p>
+              <p class="break-words">{{row.category?.name || $t('glitter-help_desk.user.list.no_category')}}</p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.updated_at</p>
+              <p title="{{row.updated_at ?? ''}}">{{row.updated_at | datetime}}</p>
+            </div>
+          </div>
+          <div class="mt-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">$t:glitter-help_desk.fields.created_at</p>
+              <p title="{{row.created_at ?? ''}}">{{row.created_at | datetime}}</p>
+            </div>
+            <badge data-type="basic" variant="{{row.status === 'resolved' ? 'success' : (row.status === 'waiting_customer' ? 'warning' : (row.status === 'closed' ? 'neutral' : (row.status === 'in_progress' ? 'primary' : 'secondary')))}}">{{$t('glitter-help_desk.status.' + row.status)}}</badge>
+          </div>
+      </div>
+      <pagination data-type="composite" data-if="{{(tickets?.data?.last_page ?? 1) > 1}}" currentPage="{{tickets?.data?.current_page ?? 1}}" totalPages="{{tickets?.data?.last_page ?? 1}}" class="mt-4 flex justify-center">
+        <on event="onPageChange">
+          <navigate path="/my/tickets" :mergeQuery="true">
+            <query page="{{$args[0]}}" q="{{query.q}}" status="{{query.status}}"/>
+          </navigate>
+        </on>
+      </pagination>
+    </div>
+  </slot>
+</layout>
